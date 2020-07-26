@@ -4,23 +4,32 @@ import os
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
     if not session.get('logged_in'):
-        return render_template('index.html')
+        return redirect('login')
     else:
         return "Hello Boss!"
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def hello():
+def login():
+    if session.get('logged_in'):
+        return redirect('home')
+
     if request.method == "POST":
         if check_auth(request.form['username'], request.form['password']):
             session['logged_in'] = True
-            print("Yes")
+            return redirect('/')
         else:
-            print("No") 
-    return redirect(url_for('home'))
+            return redirect('login')
+    else: 
+        return render_template('index.html')
+    
+    
+
+
+
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12)
